@@ -41,7 +41,7 @@ public class StudentDB implements StudentQuery {
 
     @Override
     public Set<String> getDistinctFirstNames(List<Student> students) {
-        return students.stream().map(Student::getFirstName).collect(Collectors.toSet());
+        return students.stream().map(Student::getFirstName).collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
@@ -61,12 +61,12 @@ public class StudentDB implements StudentQuery {
 
     @Override
     public List<Student> findStudentsByFirstName(Collection<Student> students, String name) {
-        return students.stream().filter(student -> student.getFirstName().equals(name)).collect(Collectors.toList());
+        return students.stream().filter(student -> student.getFirstName().equals(name)).sorted(studentComparator).collect(Collectors.toList());
     }
 
     @Override
     public List<Student> findStudentsByLastName(Collection<Student> students, String name) {
-        return students.stream().filter(student -> student.getLastName().equals(name)).collect(Collectors.toList());
+        return students.stream().filter(student -> student.getLastName().equals(name)).sorted(studentComparator).collect(Collectors.toList());
     }
 
     @Override

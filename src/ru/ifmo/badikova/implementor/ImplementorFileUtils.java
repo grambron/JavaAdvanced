@@ -18,7 +18,7 @@ import java.util.zip.ZipEntry;
 
 public class ImplementorFileUtils {
     static Path createParentDirectories(Path path) throws ImplerException {
-        Path parentPath = path.toAbsolutePath().getParent();
+        Path parentPath = path.toAbsolutePath().normalize().getParent();
         if (parentPath != null) {
             try {
                 Files.createDirectories(parentPath);
@@ -49,16 +49,21 @@ public class ImplementorFileUtils {
         file.delete();
     }
 
+    static String getPath(Class<?> token) {
+        return String.join(File.separator, token.getPackageName().split("\\.")) +
+                File.separator + token.getSimpleName();
+    }
+
     static void buildJar(Class<?> token, Path jarPath, Path tmpPath) throws ImplerException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
         try (JarOutputStream stream = new JarOutputStream(Files.newOutputStream(jarPath), manifest)) {
-            String name = token.getName().replace('.', '/') + "Impl.class";
+            String name = getPath(token) + "Impl.class";
             stream.putNextEntry(new ZipEntry(name));
             Files.copy(Paths.get(tmpPath.toString(), name), stream);
         } catch (IOException e) {
-            throw new ImplerException("Unable to write jar" + e.getMessage());
+            throw new ImplerException("Unable to write jar " + e.getMessage());
         }
     }
 
@@ -71,7 +76,11 @@ public class ImplementorFileUtils {
         Path originalPath;
         try {
             CodeSource codeSource = token.getProtectionDomain().getCodeSource();
-            originalPath = Path.of((codeSource == null) ? "" : codeSource.getLocation().getPath());
+            String uri =  codeSource == null ? "" : codeSource.getLocation().getPath();
+            if (uri.startsWith("/")) {
+                uri = uri.substring(1);
+            }
+            originalPath = Path.of(uri);
         } catch (InvalidPathException e) {
             throw new ImplerException("Can not find valid class path" + e.getMessage());
         }

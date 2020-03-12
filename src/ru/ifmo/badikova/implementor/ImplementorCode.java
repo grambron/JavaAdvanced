@@ -41,7 +41,7 @@ public class ImplementorCode {
     }
 
     private static String getModifiers(Class<?> token) {
-        return combineLine(SPACE, "public class", token.getSimpleName() + IMPL_SUFFIX, "implements", token.getSimpleName());
+        return combineLine(SPACE, "public class", token.getSimpleName() + IMPL_SUFFIX, "implements", token.getCanonicalName());
     }
 
     private static String generateOpeningLine(Class<?> token) {
@@ -72,9 +72,20 @@ public class ImplementorCode {
                 .collect(Collectors.joining(", "));
     }
 
+    private static String getExceptions(Method method) {
+        StringBuilder builder = new StringBuilder();
+        Class<?>[] exceptions = method.getExceptionTypes();
+        if (exceptions.length > 0) {
+            builder.append(" throws ");
+        }
+        builder.append(Arrays.stream(exceptions).map(Class::getCanonicalName)
+                .collect(Collectors.joining(", ")));
+        return builder.toString();
+     }
+
     private static String generateMethodHeader(Method method) {
         return combineLine(SPACE , "public", method.getReturnType().getCanonicalName(),
-                method.getName(), OPEN_BRACE, getArguments(method), CLOSE_BRACE, OPEN_BLOCK);
+                method.getName(), OPEN_BRACE, getArguments(method), CLOSE_BRACE, getExceptions(method), OPEN_BLOCK);
     }
 
     private static String generateMethods(Class<?> token) {

@@ -50,9 +50,10 @@ public class ImplementorFileUtils {
     }
 
     static String getPath(Class<?> token) {
-        return String.join(File.separator, token.getPackageName().split("\\.")) +
-                File.separator + token.getSimpleName();
+        return String.join("/", token.getPackageName().split("\\.")) +
+                "/" + token.getSimpleName();
     }
+
 
     static void buildJar(Class<?> token, Path jarPath, Path tmpPath) throws ImplerException {
         Manifest manifest = new Manifest();
@@ -82,7 +83,7 @@ public class ImplementorFileUtils {
             }
             originalPath = Path.of(uri);
         } catch (InvalidPathException e) {
-            throw new ImplerException("Can not find valid class path" + e.getMessage());
+            throw new ImplerException("Can not find valid class path: " + e.getMessage());
         }
 
         String[] compilerArgs = {

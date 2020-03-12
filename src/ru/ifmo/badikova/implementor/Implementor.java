@@ -45,7 +45,6 @@ public class Implementor implements Impler, JarImpler {
         } catch (IOException e) {
             throw new ImplerException(e.getMessage());
         }
-
     }
 
     public static void main(String[] args) {

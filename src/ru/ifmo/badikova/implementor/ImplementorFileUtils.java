@@ -11,6 +11,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.CodeSource;
+import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -93,6 +94,7 @@ public class ImplementorFileUtils {
                         token.getPackageName().replace('.', File.separatorChar),
                         token.getSimpleName() + "Impl.java").toString()
         };
+        System.out.println(Arrays.toString(compilerArgs));
         if (compiler.run(null, null, null, compilerArgs) != 0) {
             throw new ImplerException("Implementation compilation returned nonzero code");
         }

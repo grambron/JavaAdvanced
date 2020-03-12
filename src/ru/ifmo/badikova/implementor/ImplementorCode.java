@@ -97,7 +97,19 @@ public class ImplementorCode {
     }
 
     public static String generateCode(Class<?> token) {
-        return combineLine(EOL, generatePackageLine(token), generateOpeningLine(token), generateMethods(token), CLOSE_BLOCK);
+        return encode(combineLine(EOL, generatePackageLine(token), generateOpeningLine(token), generateMethods(token), CLOSE_BLOCK));
     }
 
+    private static String encode(String s) {
+        StringBuilder sb = new StringBuilder();
+        char[] charArray = s.toCharArray();
+        for (char c : charArray) {
+            if (c < 128) {
+                sb.append(c);
+            } else {
+                sb.append("\\u").append(String.format("%04x", (int) c));
+            }
+        }
+        return sb.toString();
+    }
 }

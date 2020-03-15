@@ -17,7 +17,19 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+/**
+ *Class providing tools for operations with file system for {@link Implementor}
+ *
+ * @author Anastasiia Badikova
+ * @version 1.0
+ */
 public class ImplementorFileUtils {
+    /**
+     * Creates missing parent directories of given path.
+     * @param path {@link Path} to generate parent directories
+     * @return Generated parent directory
+     * @throws ImplerException when unable to prepare source directory
+     */
     static Path createParentDirectories(Path path) throws ImplerException {
         Path parentPath = path.toAbsolutePath().normalize().getParent();
         if (parentPath != null) {
@@ -30,6 +42,12 @@ public class ImplementorFileUtils {
         return parentPath;
     }
 
+    /**
+     *Creates temp directories in given {@link Path}.
+     * @param path where temp directories needed to create
+     * @return {@link Path} of created temporary directory
+     * @throws ImplerException when unable to prepare temp directory
+     */
     static Path createTempDirectories(Path path) throws ImplerException {
         Path tmpPath;
         try {
@@ -40,6 +58,10 @@ public class ImplementorFileUtils {
         return tmpPath;
     }
 
+    /**
+     * Deletes all files of directory {@link File} recursively.
+     * @param file target directory {@link Path}
+     */
     static void deleteDirectories(File file) {
         File[] files = file.listFiles();
         if (files != null) {
@@ -50,12 +72,23 @@ public class ImplementorFileUtils {
         file.delete();
     }
 
+    /**
+     *Generates full name of given {@link Path}
+     * @param token {@link Class} to get name
+     * @return {@link String} with full name of given {@link Path}
+     */
     static String getPath(Class<?> token) {
         return String.join("/", token.getPackageName().split("\\.")) +
                 "/" + token.getSimpleName();
     }
 
-
+    /**
+     *Creates {@code .jar} containing containing compiled implementation of {@code token}.
+     * @param token {@link Class} to pack implementation
+     * @param jarPath {@link Path} where result code will be created
+     * @param tmpPath {@link Path} where source code is stored
+     * @throws ImplerException when unable to write jar
+     */
     static void buildJar(Class<?> token, Path jarPath, Path tmpPath) throws ImplerException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -69,10 +102,18 @@ public class ImplementorFileUtils {
         }
     }
 
+    /**
+     * Compiles code of token implementation stored in temporary directory.
+     * @param token {@link Class} to compile
+     * @param tmpPath {@link Path} of directory where implementation code source will be stored
+     * @throws ImplerException in case implementation compilation returned nonzero code
+     * @throws ImplerException in case cannot find java compiler
+     * @throws ImplerException in case cannot find valid class path
+     */
     static void compile(Class<?> token, Path tmpPath) throws ImplerException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (compiler == null) {
-            throw new ImplerException("Can not find java compiler");
+            throw new ImplerException("Cannot find java compiler");
         }
 
         Path originalPath;
@@ -84,7 +125,7 @@ public class ImplementorFileUtils {
             }
             originalPath = Path.of(uri);
         } catch (InvalidPathException e) {
-            throw new ImplerException("Can not find valid class path: " + e.getMessage());
+            throw new ImplerException("Cannot find valid class path: " + e.getMessage());
         }
 
         String[] compilerArgs = {
